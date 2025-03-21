@@ -74,7 +74,7 @@ url-shortener/
 #### 1. Clone Repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/rohitramteke1/aws-serverless-url-shortener
 cd url-shortener
 ```
 
