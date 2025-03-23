@@ -32,4 +32,4 @@ jobs:
     - name: 🛠 Build & Validate with SAM
       run: |
         sam --version
-        sam validate -t infrastructure/template.yaml
+        sam validate -t ../infrastructure/template.yaml
