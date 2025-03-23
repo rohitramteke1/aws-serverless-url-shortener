@@ -43,27 +43,49 @@ class UrlShortener {
 
     shortenUrl = async (longUrl) => {
         if (!longUrl) throw new Error("Missing longUrl");
-
+    
         const shortCode = this.generateShortCode();
+        console.log("Generated ShortCode:", shortCode); // <--- add this
         await this.saveToDynamoDB(shortCode, longUrl);
         return { shortUrl: `${this.baseUrl}/${shortCode}` };
     };
-
+    
     getOriginalUrl = async (shortCode) => {
+        console.log("Looking up shortCode:", shortCode);  // ✅ Add this
+    
         const params = new GetCommand({
             TableName: this.tableName,
             Key: { shortCode },
         });
+    
         const result = await dynamoDB.send(params);
+        console.log("GetCommand result:", result);  // ✅ Add this
+    
         return result.Item ? result.Item.longUrl : null;
     };
+    
+    
 }
 
 const urlShortener = new UrlShortener();
 
 export const handler = async (event) => {
     try {
+        console.log("Triggering redeploy...");
+
         const { path, body, httpMethod } = event;
+
+        if (httpMethod === "OPTIONS") {
+            return {
+                statusCode: 200,
+                headers: {
+                    "Access-Control-Allow-Origin": "*",
+                    "Access-Control-Allow-Headers": "*",
+                    "Access-Control-Allow-Methods": "OPTIONS,POST,GET",
+                },
+                body: '',
+            };
+        }
 
         if (httpMethod === "POST" && path === "/shorten") {
             const parsedBody = typeof body === "string" ? JSON.parse(body) : body;
@@ -74,12 +96,24 @@ export const handler = async (event) => {
             return createResponse(201, response);
         }
 
-        if (httpMethod === "GET" && path.match(/^\/[a-zA-Z0-9]+$/)) {
-            const shortCode = path.replace("/", "");
-            const originalUrl = await urlShortener.getOriginalUrl(shortCode);
-            if (!originalUrl) return createResponse(404, { error: "URL not found" });
-
-            return createResponse(301, {}, { Location: originalUrl });
+        if (httpMethod === "GET") {
+            const segments = path.split("/");
+            const shortCode = segments[segments.length - 1];
+            console.log("Extracted shortCode from path:", shortCode); // <---
+        
+            if (shortCode && shortCode.length === 6) {
+                const originalUrl = await urlShortener.getOriginalUrl(shortCode);
+                if (!originalUrl) {
+                    console.log("No matching URL found in DB");
+                    return createResponse(404, { error: "URL not found" });
+                }
+        
+                return {
+                    statusCode: 301,
+                    headers: { Location: originalUrl },
+                    body: "",
+                };
+            }
         }
 
         return createResponse(400, { error: "Invalid request" });
@@ -89,8 +123,14 @@ export const handler = async (event) => {
     }
 };
 
+
 const createResponse = (statusCode, body, headers = {}) => ({
     statusCode,
-    headers: { "Content-Type": "application/json", ...headers },
+    headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Headers": "*",
+        ...headers,
+    },
     body: JSON.stringify(body),
 });

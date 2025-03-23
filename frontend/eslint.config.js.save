@@ -1,0 +1,21 @@
+// eslint.config.js
+import eslintPluginReact from 'eslint-plugin-react';
+
+export default [
+  {
+    files: ['**/*.js', '**/*.jsx'],
+    languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
+    },
+    plugins: {
+      react: eslintPluginReact,
+    },
+    rules
+      'no-console': 'warn',
+      'no-unused-vars': 'warn',
+      'react/react-in-jsx-scope': 'off', // for React 17+
+    },
+  },
+];
+

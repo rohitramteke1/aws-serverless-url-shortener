@@ -1,9 +1,11 @@
 version = 0.1
+
 [default.deploy.parameters]
-stack_name = "url-shortener-stack"
+stack_name = "url-shortener-final"
 s3_bucket = "url-shortner-bucket-rohit"
-resolve_s3 = false
-s3_prefix = "url-shortener-stack"
+resolve_s3 = true
+s3_prefix = "url-shortener-final"
 region = "ap-south-1"
 capabilities = "CAPABILITY_IAM"
 image_repositories = []
+confirm_changeset = true

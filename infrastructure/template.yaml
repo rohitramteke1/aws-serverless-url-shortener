@@ -2,10 +2,17 @@ AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 
 Resources:
+
+  ApiGateway:
+    Type: AWS::Serverless::Api
+    Properties:
+      Name: UrlShortenerApi
+      StageName: Prod
+
   UrlShortenerFunction:
     Type: AWS::Serverless::Function
     Properties:
-      FunctionName: UrlShortener
+      FunctionName: UrlShortenerService
       Handler: index.handler
       Runtime: nodejs18.x
       CodeUri: ../backend
@@ -14,32 +21,42 @@ Resources:
       Environment:
         Variables:
           TABLE_NAME: !Ref UrlTable
-          BASE_URL: "https://short.ro.com"
+          BASE_URL: https://0q8pmbhw80.execute-api.ap-south-1.amazonaws.com/Prod
       Policies:
         - DynamoDBCrudPolicy:
             TableName: !Ref UrlTable
       Events:
-        RootPath:
-          Type: Api
-          Properties:
-            Path: /
-            Method: GET
         ShortenUrl:
           Type: Api
           Properties:
             Path: /shorten
             Method: POST
+            RestApiId: !Ref ApiGateway
+
+        ShortenUrlOptions:
+          Type: Api
+          Properties:
+            Path: /shorten
+            Method: OPTIONS
+            RestApiId: !Ref ApiGateway
+
         RedirectUrl:
           Type: Api
           Properties:
             Path: /{shortCode}
             Method: GET
-      
+            RestApiId: !Ref ApiGateway
+
+        RootPath:
+          Type: Api
+          Properties:
+            Path: /
+            Method: GET
+            RestApiId: !Ref ApiGateway
 
   UrlTable:
     Type: AWS::DynamoDB::Table
     Properties:
-      TableName: UrlTable
       AttributeDefinitions:
         - AttributeName: shortCode
           AttributeType: S
@@ -51,4 +68,4 @@ Resources:
 Outputs:
   ApiGatewayInvokeUrl:
     Description: "Base URL for API Gateway"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/Prod"
