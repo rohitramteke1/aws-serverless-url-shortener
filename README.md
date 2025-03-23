@@ -1,5 +1,9 @@
 # 🔗 URL Shortener API
 
+![Frontend CI](https://github.com/rohitramteke1/aws-serverless-url-shortener/actions/workflows/frontend.yml/badge.svg)
+![Backend CI](https://github.com/rohitramteke1/aws-serverless-url-shortener/actions/workflows/backend.yml/badge.svg)
+
+
 A scalable, secure, and serverless URL Shortener built using AWS SAM, Lambda, DynamoDB, API Gateway, and modern web technologies.
 
 ---
