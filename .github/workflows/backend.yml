@@ -31,4 +31,4 @@ jobs:
     - name: 🛠 Build & Validate with SAM
       run: |
         sam --version
-        sam validate
+        sam validate -t infrastructure/template.yaml
