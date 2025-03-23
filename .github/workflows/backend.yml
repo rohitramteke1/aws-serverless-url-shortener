@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: backend
@@ -26,15 +25,10 @@ jobs:
     - name: 📦 Install dependencies
       run: npm install
 
-    - name: 🔍 Run ESLint (Optional)
-      run: npm run lint
-      continue-on-error: true
-
-    - name: ✅ Run Tests (Optional)
+    - name: 🧪 Run tests (if you have any)
       run: npm test
-      continue-on-error: true
 
-    - name: ⚙️ Package with AWS SAM
+    - name: 🛠 Build & Validate with SAM
       run: |
-        npm install -g aws-sam-cli
-        sam build
+        sam --version
+        sam validate
